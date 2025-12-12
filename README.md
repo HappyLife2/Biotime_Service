@@ -21,9 +21,9 @@ The service uses environment variables for configuration, with sensible defaults
 
 | Variable | Default | Description |
 | :--- | :--- | :--- |
-| `BIOTIME_BASE` | `http://192.168.15.114` | Base URL of the BioTime server |
-| `BIOTIME_USERNAME` | `HR` | Admin username |
-| `BIOTIME_PASSWORD` | `2025@qazxsw` | Admin password |
+| `BIOTIME_BASE` | `http://localhost:8080` | Base URL of the BioTime server |
+| `BIOTIME_USERNAME` | `admin` | Admin username |
+| `BIOTIME_PASSWORD` | `password` | Admin password |
 | `WORK_START_TIME` | `08:00:00` | Official work start time |
 | `LATE_AFTER_TIME` | `08:05:00` | Time after which an employee is marked late |
 | `EARLY_LEAVE_TIME` | `17:00:00` | Time before which departure is "early" |

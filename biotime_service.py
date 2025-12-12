@@ -8,7 +8,7 @@ import uvicorn
 
 # ----------- CONFIG / ENV VARS -----------
 # Pull from env, but fall back to defaults
-_raw_base = os.environ.get("BIOTIME_BASE") or "http://192.168.15.114"
+_raw_base = os.environ.get("BIOTIME_BASE") or "http://localhost:8080"
 
 # Ensure it always has a scheme
 if not _raw_base.startswith("http://") and not _raw_base.startswith("https://"):
@@ -16,8 +16,8 @@ if not _raw_base.startswith("http://") and not _raw_base.startswith("https://"):
 
 BIOTIME_BASE = _raw_base.rstrip("/")  # remove trailing slash just in case
 
-USERNAME = os.environ.get("BIOTIME_USERNAME") or "HR"
-PASSWORD = os.environ.get("BIOTIME_PASSWORD") or "2025@qazxsw"
+USERNAME = os.environ.get("BIOTIME_USERNAME") or "admin"
+PASSWORD = os.environ.get("BIOTIME_PASSWORD") or "password"
 
 # ---- Attendance rules (adjust as needed) ----
 WORK_START_TIME = os.environ.get("WORK_START_TIME") or "08:00:00"       # Official start time
