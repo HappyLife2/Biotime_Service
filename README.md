@@ -48,6 +48,34 @@ The service uses environment variables for configuration, with sensible defaults
     ```
     Server runs on `http://0.0.0.0:8000`.
 
+## Docker Setup (Production Ready)
+
+This service is containerized for easy deployment.
+
+### Prerequisites
+- Docker and Docker Compose installed.
+
+### Quick Start
+1.  **Configure Environment**:
+    Edit the `environment` section in `docker-compose.yml` with your actual BioTime credentials and preferences.
+
+2.  **Run with Docker Compose**:
+    ```bash
+    docker-compose up -d --build
+    ```
+    The service will start on port `8000`.
+
+3.  **Check Logs**:
+    ```bash
+    docker-compose logs -f
+    ```
+
+### Production Notes
+- The Docker image runs as a non-root user (`appuser`) for security.
+- `restart: unless-stopped` ensures the service auto-recovers from crashes.
+- A healthcheck is configured to monitor service availability.
+- For high-load environments, consider using an orchestrator like Kubernetes or scaling the service behind a load balancer (Nginx/Traefik).
+
 ## Documentation
 
 See [WALKTHROUGH.md](WALKTHROUGH.md) for detailed verification steps and recent changes.

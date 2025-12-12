@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  biotime-service:
+    build: .
+    container_name: biotime_service
+    ports:
+      - "8000:8000"
+    environment:
+      - BIOTIME_BASE=http://192.168.15.114
+      - BIOTIME_USERNAME=HR
+      - BIOTIME_PASSWORD=2025@qazxsw
+      - WORK_START_TIME=08:00:00
+      - LATE_AFTER_TIME=08:05:00
+      - EARLY_LEAVE_TIME=17:00:00
+    restart: unless-stopped
+    # Healthcheck to ensure service is up
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/docs" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
