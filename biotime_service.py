@@ -455,6 +455,9 @@ def calculate_attendance_stats(start_dt: datetime, end_dt: datetime):
         days_absent = 0
         total_required_days = 0
         
+        late_details = []
+        absent_details = []
+        
         emp_punches = punches_map.get(code, {})
 
         for day in all_dates:
@@ -477,6 +480,7 @@ def calculate_attendance_stats(start_dt: datetime, end_dt: datetime):
             
             if not has_punches:
                 days_absent += 1
+                absent_details.append(d_str)
             else:
                 days_present += 1
                 
@@ -488,6 +492,11 @@ def calculate_attendance_stats(start_dt: datetime, end_dt: datetime):
                 threshold_dt = datetime.combine(day.date(), late_time_struct)
                 if first_punch_dt > threshold_dt:
                     days_late += 1
+                    late_details.append({
+                        "date": d_str,
+                        "punch_time": first_punch_str,
+                        "late_by": str(first_punch_dt - threshold_dt)
+                    })
 
         report_data.append({
             "emp_code": code,
@@ -498,7 +507,9 @@ def calculate_attendance_stats(start_dt: datetime, end_dt: datetime):
                 "work_days_required": total_required_days,
                 "present": days_present,
                 "late": days_late,
-                "absent": days_absent
+                "absent": days_absent,
+                "late_details": late_details,
+                "absent_details": absent_details
             }
         })
 
