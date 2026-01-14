@@ -626,6 +626,80 @@ def attendance_report_monthly_previous():
     }
 
 # ----------------------------------------------------
+# PAYROLL REPORT (26th Prev Month to 25th Curr Month)
+# ----------------------------------------------------
+@app.get("/attendance/report/payroll")
+def attendance_report_payroll(month: int = None, year: int = None):
+    """
+    Payroll Monthly Report:
+    - Logic: Cycle is from 26th of (Month-1) to 25th of (Month).
+    - If month/year provided: Returns stats for that payroll month.
+      e.g. month=1, year=2024 -> Dec 26, 2023 to Jan 25, 2024.
+    - If missing: Auto-detects based on TODAY.
+      e.g. Today is Jan 10 -> Dec 26 to Jan 25 cycle.
+      e.g. Today is Jan 26 -> Jan 26 to Feb 25 cycle.
+    """
+    now = datetime.now()
+
+    if month is not None and year is not None:
+        # User specified target Payroll Month
+        target_month = month
+        target_year = year
+    else:
+        # Auto-detect based on today
+        # If today.day >= 26, we are in the "next month's" payroll cycle
+        if now.day >= 26:
+            if now.month == 12:
+                target_month = 1
+                target_year = now.year + 1
+            else:
+                target_month = now.month + 1
+                target_year = now.year
+        else:
+            # We are in the current month's payroll cycle
+            target_month = now.month
+            target_year = now.year
+
+    # Calculate Start Date: 26th of Previous Month
+    if target_month == 1:
+        prev_month = 12
+        prev_month_year = target_year - 1
+    else:
+        prev_month = target_month - 1
+        prev_month_year = target_year
+
+    start_dt = datetime(prev_month_year, prev_month, 26)
+    
+    # Calculate End Date: 25th of Target Month
+    end_dt = datetime(target_year, target_month, 25)
+
+    # However, we can't report on the future. If end_dt > now, cap it at now?
+    # Usually reports are for past or up-to-now. Let's cap if strictly needed, 
+    # but for "report" usually we want the fixed cycle. 
+    # But calculate_attendance_stats loops days. Future days yield no data (absent).
+    # To avoid "Absent" for future days, we should cap end_dt at NOW if it's in the future.
+    if end_dt > now:
+        end_dt = now
+
+    all_data = calculate_attendance_stats(start_dt, end_dt)
+
+    # Filter: Late or Absent only
+    filtered_data = [
+        d for d in all_data 
+        if d["stats"]["late"] > 0 or d["stats"]["absent"] > 0
+    ]
+
+    return {
+        "period": "payroll_monthly",
+        "payroll_for_month": f"{target_year}-{target_month:02d}",
+        "period_start": start_dt.strftime("%Y-%m-%d %H:%M:%S"),
+        "period_end": end_dt.strftime("%Y-%m-%d %H:%M:%S"),
+        "count": len(filtered_data),
+        "data": filtered_data
+    }
+
+
+# ----------------------------------------------------
 # RUN SERVER IF FILE IS EXECUTED DIRECTLY
 # ----------------------------------------------------
 if __name__ == "__main__":
