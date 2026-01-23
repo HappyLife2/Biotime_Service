@@ -1,6 +1,7 @@
 # biotime_service.py
 import os
 import requests
+from requests.exceptions import RequestException
 from fastapi import FastAPI, HTTPException
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -40,14 +41,18 @@ print("=================================")
 # ----------------------------------------------------
 def get_token():
     url = f"{BIOTIME_BASE}/jwt-api-token-auth/"
-    resp = requests.post(
-        url,
-        json={
-            "username": USERNAME,
-            "password": PASSWORD,
-        },
-        timeout=10,
-    )
+    try:
+        resp = requests.post(
+            url,
+            json={
+                "username": USERNAME,
+                "password": PASSWORD,
+            },
+            timeout=10,
+        )
+    except RequestException as e:
+        print(f"Error connecting to BioTime (get_token): {e}")
+        raise HTTPException(status_code=503, detail=f"BioTime device unreachable: {str(e)}")
 
     if not resp.ok:
         raise HTTPException(status_code=resp.status_code, detail=resp.text)
@@ -63,12 +68,16 @@ def fetch_employees(page: int = 1, page_size: int = 1000):
     token = get_token()
     url = f"{BIOTIME_BASE}/personnel/api/employees/"
 
-    resp = requests.get(
-        url,
-        headers={"Authorization": f"JWT {token}"},
-        params={"page": page, "page_size": page_size},
-        timeout=15,
-    )
+    try:
+        resp = requests.get(
+            url,
+            headers={"Authorization": f"JWT {token}"},
+            params={"page": page, "page_size": page_size},
+            timeout=15,
+        )
+    except RequestException as e:
+        print(f"Error connecting to BioTime (fetch_employees): {e}")
+        raise HTTPException(status_code=503, detail=f"BioTime device unreachable: {str(e)}")
 
     if not resp.ok:
         raise HTTPException(status_code=resp.status_code, detail=resp.text)
@@ -101,12 +110,16 @@ def fetch_transactions(
     if end_time:
         params["end_time"] = end_time
 
-    resp = requests.get(
-        url,
-        headers={"Authorization": f"JWT {token}"},
-        params=params,
-        timeout=30,
-    )
+    try:
+        resp = requests.get(
+            url,
+            headers={"Authorization": f"JWT {token}"},
+            params=params,
+            timeout=30,
+        )
+    except RequestException as e:
+        print(f"Error connecting to BioTime (fetch_transactions): {e}")
+        raise HTTPException(status_code=503, detail=f"BioTime device unreachable: {str(e)}")
 
     if not resp.ok:
         raise HTTPException(status_code=resp.status_code, detail=resp.text)
